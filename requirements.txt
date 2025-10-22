@@ -1,0 +1,22 @@
+# Core utilities
+python-dotenv==1.0.1
+pandas==2.3.3
+numpy==2.3.4
+
+# PDF parsing (text only, no OCR)
+PyMuPDF==1.26.5          # import as "fitz"
+
+# Vector store (FAISS only)
+faiss-cpu==1.12.0        # Windows wheel available
+
+# OpenAI API (embeddings + chat)
+openai==2.3.0            # new SDK (has OpenAI() client)
+
+# Tokenization / chunking
+tiktoken==0.7.0
+
+# Frontend UI
+streamlit==1.39.0
+
+# Progress
+tqdm==4.67.1

@@ -1,0 +1,73 @@
+# =======================================
+#  Python / Virtual Environment
+# =======================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.dll
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =======================================
+#  Environment / Secrets
+# =======================================
+.env
+.env.*
+!.env.example             # keep only the template if you ever add one
+
+# =======================================
+#  Data and Outputs
+# =======================================
+data/raw/*
+!data/raw/.gitkeep        # keep folder structure
+
+data/processed/*
+!data/processed/.gitkeep
+
+data/indexes/*
+!data/indexes/.gitkeep
+
+# Optional — large serialized files
+*.pkl
+*.npy
+*.npz
+*.bin
+*.jsonl
+*.csv
+
+# =======================================
+#  Logs / Reports / Cache
+# =======================================
+logs/
+*.log
+*.tmp
+*.bak
+*.cache
+__cache__/
+.cache/
+*.ipynb_checkpoints
+
+# =======================================
+#  Streamlit / Local Runs
+# =======================================
+.streamlit/
+*/.streamlit/
+
+# =======================================
+#  OS-specific
+# =======================================
+.DS_Store
+Thumbs.db
+desktop.ini
