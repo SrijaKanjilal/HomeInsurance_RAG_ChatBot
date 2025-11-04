@@ -71,3 +71,10 @@ __cache__/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+
+# Chromadb local database
+# =======================================
+data/chroma_db/
+
+data/processed

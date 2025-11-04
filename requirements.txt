@@ -4,13 +4,13 @@ pandas==2.3.3
 numpy==2.3.4
 
 # PDF parsing (text only, no OCR)
-PyMuPDF==1.26.5          # import as "fitz"
+PyMuPDF==1.26.5          
 
-# Vector store (FAISS only)
-faiss-cpu==1.12.0        # Windows wheel available
+# Vector store 
+chromadb==1.2.1      
 
 # OpenAI API (embeddings + chat)
-openai==2.3.0            # new SDK (has OpenAI() client)
+openai==2.3.0           
 
 # Tokenization / chunking
 tiktoken==0.7.0
