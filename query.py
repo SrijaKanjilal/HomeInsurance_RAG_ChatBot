@@ -53,19 +53,11 @@ def build_metadata_filter(q: str) -> dict | None:
     return where or None
 
 
-# def retrieve_top_k(collection, query: str, k: int, where: dict | None = None) -> list[dict]:
 def retrieve_top_k(collection, query: str, k: int, where: dict | None = None, query_embedding: list[float] | None = None) -> list[dict]:
     if query_embedding is not None:
         retrieved = collection.query(query_embeddings=[query_embedding], n_results=k, include=["documents","metadatas","distances"], where=where)
     else:
         retrieved = collection.query(query_texts=[query], n_results=k, include=["documents","metadatas","distances"], where=where)
-    
-    # retrieved = collection.query(
-    #     query_texts=[query], 
-    #     n_results=k, 
-    #     include=["documents","metadatas","distances"], 
-    #     where=where)
-    # ids = retrieved["ids"][0]
     documents = retrieved["documents"][0]
     metadatas = retrieved["metadatas"][0]
     distances = retrieved["distances"][0]
@@ -220,7 +212,6 @@ def format_sources(context_blocks: list[dict]) -> list[dict]:
 
 def generate_answer(question: str, k: int = TOP_K, context_budget_tokens: int = 3000, temperature: float = TEMPERATURE, max_tokens: int = MAX_TOKENS) -> dict:
     collection, openai_client, tokenizer = initialize_clients()
-
     q = normalize_query(question)
     if not q:
         return {
@@ -236,8 +227,6 @@ def generate_answer(question: str, k: int = TOP_K, context_budget_tokens: int = 
     query_emb = resp.data[0].embedding
     logger.info("Query emb dim: %d", len(query_emb))
     hits = retrieve_top_k(collection, q, k, where=where, query_embedding=query_emb)
-    # hits = retrieve_top_k(collection, q, k, where=where)
-
     if not hits:
         logger.info("No hits returned by retriever.")
         return {
@@ -275,9 +264,7 @@ def generate_answer(question: str, k: int = TOP_K, context_budget_tokens: int = 
         "abstained": True,
     }
 
-    
     answers = resp.choices[0].message.content.strip()
-
     sources = format_sources(context_blocks)
 
     return {

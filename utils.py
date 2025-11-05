@@ -62,99 +62,12 @@ def strip_page_headers_footers(text: str) -> str:
         filtered.append(line)
     return '\n'.join(filtered)
 
-# def split_sections(text: str) -> list[dict]:
-#     SEC_RE = re.compile(r'^(?P<id>\d+)\.\s+(?P<title>.+)$')
-#     SUB_RE = re.compile(r'^(?P<id>\d+\.\d+)\s+(?P<title>[A-Z0-9/\- &()]+)$')
-
-#     sections = []
-#     current_sec = None          
-#     current_sub = None          
-#     buffer = []
-#     in_main_intro = False       # NEW: track “between section and first subsection”
-
-#     for raw in text.split("\n"):
-#         line = raw.strip()
-#         if not line:
-#             continue
-
-#         m_sub = SUB_RE.match(line)
-#         if m_sub:
-#             if current_sub and buffer:
-#                 sections.append({
-#                     "section_id":   current_sec[0] if current_sec else None,
-#                     "section_title":current_sec[1] if current_sec else None,
-#                     "subsection_id":   current_sub[0],
-#                     "subsection_title": current_sub[1],
-#                     "content": "\n".join(buffer).strip()
-#                 })
-#                 buffer = []
-
-#             # if we were in main-intro (no subsection yet), DROP that buffer
-#             if in_main_intro:
-#                 buffer = []
-#                 in_main_intro = False
-
-#             # start a new subsection (keep header line inside content for context)
-#             current_sub = (m_sub.group("id"), m_sub.group("title"))
-#             buffer.append(line)
-#             continue
-
-#         m_sec = SEC_RE.match(line)
-#         if m_sec:
-#             if current_sub and buffer:
-#                 sections.append({
-#                     "section_id":   current_sec[0] if current_sec else None,
-#                     "section_title":current_sec[1] if current_sec else None,
-#                     "subsection_id":   current_sub[0],
-#                     "subsection_title": current_sub[1],
-#                     "content": "\n".join(buffer).strip()
-#                 })
-#                 buffer = []
-
-#             current_sec = (m_sec.group("id"), m_sec.group("title"))
-#             current_sub = None
-#             buffer = []         
-#             in_main_intro = True
-#             continue
-
-#         if current_sub:
-#             buffer.append(line)
-#         else:
-#             # we are either before the first section, or in main-intro so IGNORE
-#             pass
-
-#     if current_sub and buffer:
-#         sections.append({
-#             "section_id":   current_sec[0] if current_sec else None,
-#             "section_title":current_sec[1] if current_sec else None,
-#             "subsection_id":   current_sub[0],
-#             "subsection_title": current_sub[1],
-#             "content": "\n".join(buffer).strip()
-#         })
-
-#     return sections
-
 def split_and_aggregate_subsections(input_src: str) -> list[dict]:
-    """
-    Parse PDF and aggregate all text belonging to the same base subsection ID (e.g., '4.1')
-    into a single output entry. This ensures exactly one entry per unique X.Y subsection id.
-
-    Returns: list of dicts:
-      {
-        "section_id": "4",
-        "section_title": "Roofing",
-        "subsection_id": "4.1",
-        "subsection_title": "Roof Covering",
-        "content": "full text for this subsection (concatenated across page breaks)"
-      }
-    """
 
     SEC_RE = re.compile(r'^(?P<id>\d+)\.\s+(?P<title>.+)$')
     SUB_RE = re.compile(r'^(?P<id>\d+\.\d+)\s+(?P<title>.+\S)$')
 
-    # Decide whether input_src is a path to a PDF file or raw text
     if isinstance(input_src, str) and os.path.isfile(input_src):
-        # It's a real PDF path -> extract text from PDF pages
         doc = fitz.open(input_src)
         pages = [p.get_text("text") for p in doc]
         text = "\n".join(pages)
@@ -175,7 +88,6 @@ def split_and_aggregate_subsections(input_src: str) -> list[dict]:
         if m_sub:
             base = m_sub.group("id")
             title = m_sub.group("title").strip()
-            # infer parent section if missing
             if current_section is None:
                 inferred = base.split(".")[0]
                 current_section = (inferred, None)
@@ -191,7 +103,6 @@ def split_and_aggregate_subsections(input_src: str) -> list[dict]:
                 merged[base]["content_lines"].append(line)
             else:
                 # repeated occurrence (e.g. same header repeated on new page):
-                # add a small page-break marker so content parts remain separable.
                 merged[base]["content_lines"].append("\n--PAGE-BREAK--\n")
                 # if title differs from first captured, also record it for clarity
                 if title and title != merged[base]["subsection_title"]:
